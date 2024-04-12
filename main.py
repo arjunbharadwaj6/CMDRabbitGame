@@ -3,6 +3,7 @@ import os
 import random
 
 # Need to be installed it is used to capture the users input like arrow keys
+# It can be installed using pip install keyboard
 import keyboard
 
 
