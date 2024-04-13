@@ -254,24 +254,51 @@ def movement(event):
     elif event.name == "p":
         # If the rabbit has not picked up the carrot
         if not picked:
+            picked = True
             # If there is a carrot above the rabbit
-            if grid[y_r - 1][x_r] == "c":
-                y_r -= 1
-                picked = True
+            if y_r == 0:
+                if grid[y_r + 1][x_r] == "c":
+                    y_r += 1
+                elif grid[y_r][x_r - 1] == "c":
+                    x_r -= 1
+                elif grid[y_r][x_r + 1] == "c":
+                    x_r += 1
             # If there is a carrot below the rabbit
-            elif grid[y_r + 1][x_r] == "c":
-                y_r += 1
-                picked = True
+            elif y_r == grid_size - 1:
+                if grid[y_r - 1][x_r] == "c":
+                    y_r -= 1
+                elif grid[y_r][x_r - 1] == "c":
+                    x_r -= 1
+                elif grid[y_r][x_r + 1] == "c":
+                    x_r += 1
             # If there is a carrot to the left of the rabbit
-            elif grid[y_r][x_r - 1] == "c":
-                x_r -= 1
-                picked = True
+            elif x_r == 0:
+                if grid[y_r + 1][x_r] == "c":
+                    y_r += 1
+                elif grid[y_r - 1][x_r] == "c":
+                    y_r -= 1
+                elif grid[y_r][x_r + 1] == "c":
+                    x_r += 1
             # If there is a carrot to the right of the rabbit
-            elif grid[y_r][x_r + 1] == "c":
-                x_r += 1
-                picked = True
+            elif x_r == grid_size - 1:
+                if grid[y_r + 1][x_r] == "c":
+                    y_r += 1
+                elif grid[y_r][x_r - 1] == "c":
+                    x_r -= 1
+                elif grid[y_r - 1][x_r] == "c":
+                    y_r -= 1
             else:  # If there is no carrot adjacent to the carrot
-                print("Since you are not adjacent to a carrot you can't pick it up")
+                if grid[y_r + 1][x_r] == "c":
+                    y_r += 1
+                elif grid[y_r - 1][x_r] == "c":
+                    y_r -= 1
+                elif grid[y_r][x_r + 1] == "c":
+                    x_r += 1
+                elif grid[y_r][x_r - 1] == "c":
+                    x_r -= 1
+                else:
+                    print("Since you are not adjacent to a carrot you can't pick it up")
+                    picked = False
         # If the carrot has already been picked and it has to be placed in a hole
         else:
             # If the rabbit is at the top of the board
@@ -368,7 +395,6 @@ dis, min_dis = find_shortest_path(x_r, y_r, x_c, y_c)
 for i in range(len(dis)):
     dis_h, min_hole_dis = find_shortest_path(x_c[i], y_c[i], x_h, y_h)
     dis[i] += min_hole_dis
-    dis[i] -= 1
 
 print(f"The min number of steps required to finish the game is: {min(dis)}")
 
