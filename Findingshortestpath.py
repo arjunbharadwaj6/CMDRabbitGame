@@ -29,6 +29,7 @@ def print_grid(g):
     for arr in g:
         print()
         print(*arr, sep="    ")
+    print()
 
 
 # printing function to avoid repetition
@@ -159,6 +160,7 @@ print("Use the 'j' key to jump and the 'p' key to pick up the carrot.")
 print(
     "You can only pick up one carrot. You can place the picked up carrot in a hole by using the key 'p'."
 )
+print("Press 'q' to exit the game at any point")
 
 
 def movement(event):
@@ -175,7 +177,9 @@ def movement(event):
 
     grid[y_r][x_r] = "-"
     # If the up or the w key has been pressed
-    if event.name == "up" or event.name == "w":
+    if event.name == "q":
+        game_over = True
+    elif event.name == "up" or event.name == "w":
         if y_r == 0:  # edge of the board
             print("You can't go up. You are at the edge of the board.")
         elif grid[y_r - 1][x_r] == "c":  # there is a carrot above
