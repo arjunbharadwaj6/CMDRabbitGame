@@ -1,239 +1,129 @@
-# Imports
-import queue
 import random
+from collections import deque
 
 
-def print_grid(g):
-    """
-    Function to print the grid
-
-    Args:
-        g (2D array): The grid which will be printed
-    """
-    for arr in g:
+# Prints the grid
+def print_grid(grid):
+    for row in grid:
+        print("    ".join(row))
         print()
-        print(*arr, sep="    ")
-    print()
 
 
-def grid_generator(grid_size, n_carrots, n_holes):
-    """
-    Generates the grid
+# Generates the grid
+def generate_grid(grid_size, n_carrots, n_holes):
+    # Using list comprehension i have generated a grid
+    grid = [["-" for _ in range(grid_size)] for _ in range(grid_size)]
 
-    Args:
-        grid_size (int): It is the length and the width of the grid
-        n_carrots (int): The number of carrots
-        n_holes (int): The number of holes
-
-    Returns:
-        grid (2D list): The grid
-        x_r: The x cord of rabbit
-        y_r: The y cord of rabbit
-    """
-    # Check if the entered values match the guidlines
-    # while True:
-    #     # If the user entered 0 carrots
-    #     if n_carrots < 2:
-    #         print("Please enter 2 or more carrots")
-    #         n_carrots = int(input("Enter number of carrots: "))
-    #     # If the user entered 0 holes
-    #     elif n_holes < 2:
-    #         print("Please enter 2 or more holes")
-    #         n_holes = int(input("Enter number of holes: "))
-    #     # If It matches the guidlines
-    #     elif n_carrots + n_holes < grid_size * grid_size and grid_size >= 10:
-    #         break
-    #     # If the grid_size is too small
-    #     elif grid_size < 10:
-    #         print("The grid size is too small please enter minimum of 10")
-    #         grid_size = int(input("Enter grid size: "))
-    #     # If the carrots and the holes don't fit in the given grid
-    #     elif n_carrots + n_holes >= grid_size * grid_size:
-    #         print(
-    #             "There are too many carrots and holes for the given board. Please reduce the number of carrots and number of holes"
-    #         )
-    #         n_carrots = int(input("Enter number of carrots: "))
-    #         n_holes = int(input("Enter number of holes: "))
-
-    grid = []  # The grid
-    x_c = []  # x cords of carrots
-    y_c = []  # y cords of carrots
-    x_h = []  # x cords of holes
-    y_h = []  # y cords of holes
-    x_r = random.randint(0, grid_size - 1)  # x cord of rabbit
-    y_r = random.randint(0, grid_size - 1)  # y cord of rabbit
-
-    # Generates the random x and y cords of carrots
-    for i in range(n_carrots):
-        x_c.append(random.randint(0, grid_size - 1))
-        y_c.append(random.randint(0, grid_size - 1))
-
-    # Generates the random x and y cords of holes
-    for i in range(n_holes):
-        x_h.append(random.randint(0, grid_size - 1))
-        y_h.append(random.randint(0, grid_size - 1))
-
-    # Makes the grid a 2D list
-    for i in range(grid_size):
-        grid.append([])
-
-    # Adds all the pathway stones
-    for i in range(grid_size):
-        for j in range(grid_size):
-            grid[i].append("-")
-
-    # Adds the rabbit
+    # Rabbit position
+    x_r, y_r = random.randint(0, grid_size - 1), random.randint(0, grid_size - 1)
+    # Adds the rabbit to the grid
     grid[y_r][x_r] = "r"
 
-    # Adds the carrots
-    for i in range(n_carrots):
-        while True:
-            # if the the random position there is already a carrot or a rabbit
-            if grid[y_c[i]][x_c[i]] == "c" or grid[y_c[i]][x_c[i]] == "r":
-                # Generates a new random x and y cords
-                x_c[i] = random.randint(0, grid_size - 1)
-                y_c[i] = random.randint(0, grid_size - 1)
-            else:
-                break
+    # Carrots positions
+    carrot_positions = []
+    for _ in range(n_carrots):
+        x, y = random.randint(0, grid_size - 1), random.randint(0, grid_size - 1)
+        # Makes sure that the carrot position is always unique
+        while grid[y][x] != "-":
+            x, y = random.randint(0, grid_size - 1), random.randint(0, grid_size - 1)
+        # Adds the carrot to the grid and the position to the list of positions
+        grid[y][x] = "c"
+        carrot_positions.append((x, y))
 
-        grid[y_c[i]][x_c[i]] = "c"
+    # Holes positions
+    hole_positions = []
+    for _ in range(n_holes):
+        x, y = random.randint(0, grid_size - 1), random.randint(0, grid_size - 1)
+        # Makes sure that the carrot position is always unique
+        while grid[y][x] != "-":
+            x, y = random.randint(0, grid_size - 1), random.randint(0, grid_size - 1)
+        # Adds the hole to the grid and the position to the list of positions
+        grid[y][x] = "O"
+        hole_positions.append((x, y))
 
-    # Adds the holes
-    for i in range(n_holes):
-        while True:
-            # if the the random position there is already a carrot, a rabbit or a hole
-            if (
-                grid[y_h[i]][x_h[i]] == "c"
-                or grid[y_h[i]][x_h[i]] == "O"
-                or grid[y_h[i]][x_h[i]] == "r"
-            ):
-                # Generates a new random x and y cords
-                x_h[i] = random.randint(0, grid_size - 1)
-                y_h[i] = random.randint(0, grid_size - 1)
-            else:
-                break
-
-        grid[y_h[i]][x_h[i]] = "O"
-
-    # Once done it returns all the required values so that it can be used outside the function
-    return grid, x_r, y_r, x_h, y_h, x_c, y_c
+    return grid, x_r, y_r, carrot_positions
 
 
-def valid(grid, moves, start_x, start_y, ele, find, grid_size):
-    for move in moves:
-        x = False
-        if move == "U":
-            start_y -= 1
-        elif move == "D":
-            start_y += 1
-        elif move == "L":
-            start_x -= 1
-        elif move == "R":
-            start_x += 1
-        elif move == "W":
-            if (
-                start_y > 1
-                and grid[start_y - 1][start_x] == "O"
-                and grid[start_y - 2][start_x] != "O"
-                and grid[start_y - 2][start_x] != "c"
-            ):
-                x = True
-                start_y -= 2
-            else:
-                return False
-        elif move == "S":
-            if (
-                start_y < grid_size - 2
-                and grid[start_y + 1][start_x] == "O"
-                and grid[start_y + 2][start_x] != "O"
-                and grid[start_y + 2][start_x] != "c"
-            ):
-                x = True
-                start_y += 2
-            else:
-                return False
-        elif move == "A":
-            if (
-                start_x > 1
-                and grid[start_y][start_x - 1] == "O"
-                and grid[start_y][start_x - 2] != "O"
-                and grid[start_y][start_x - 2] != "c"
-            ):
-                x = True
-                start_x -= 2
-            else:
-                return False
-        elif move == "D":
-            if (
-                start_x < grid_size - 2
-                and grid[start_y][start_x + 1] == "O"
-                and grid[start_y][start_x + 2] != "O"
-                and grid[start_y][start_x + 2] != "c"
-            ):
-                x = True
-                start_x += 2
-            else:
-                return False
-
-        if not (0 <= start_y < grid_size and 0 <= start_x < grid_size):
-            return False
-        elif not x and grid[start_y][start_x] == "O":
-            return False
-    return True
+# Checks the the move is vaild
+def is_valid(grid, x, y, grid_size):
+    # Check if the move is not out of bounds and there there is no hole in the preticular position
+    return 0 <= x < grid_size and 0 <= y < grid_size and grid[y][x] != "O"
 
 
-def find_end(grid, moves, start_x, start_y):
-    for move in moves:
-        if move == "U":
-            if grid[start_y - 1][start_x] == "c":
-                return True
-            start_y -= 1
-        elif move == "D":
-            if grid[start_y + 1][start_x] == "c":
-                return True
-            start_y += 1
-        elif move == "L":
-            if grid[start_y][start_x - 1] == "c":
-                return True
-            start_x -= 1
-        elif move == "R":
-            if grid[start_y][start_x + 1] == "c":
-                return True
-            start_x += 1
-        elif move == "W":
-            start_y -= 2
-        elif move == "S":
-            start_y += 2
-        elif move == "A":
-            start_x -= 2
-        elif move == "D":
-            start_x += 2
-    return False
+# Checks if the move is vaild for a jump
+def is_valid_j(grid, x, y, grid_size):
+    # Check if the move is not out of bounds and there there is no hole or carrot in the preticular position
+    return (
+        0 <= x < grid_size
+        and 0 <= y < grid_size
+        and grid[y][x] != "O"
+        and grid[y][x] != "c"
+    )
 
 
-def bfs(grid, n_c, start_x, start_y, ele, find, grid_size):
-    path = queue.Queue()
-    path.put("")
-    add = ""
-    visited = []
-    while not find_end(grid, add, start_x, start_y):
-        add = path.get()
-        for j in ["U", "D", "L", "R", "W", "S", "A", "D"]:
-            put = add + j
-            v = valid(grid, put, start_x, start_y, ele, find, grid_size)
-            if v and not put in visited:
-                path.put(put)
-                visited.append(put)
-    return add
+# The code for the sorting algorithm bfs(breadth-first search)
+def bfs(grid, start_x, start_y, target_x, target_y, grid_size):
+    # A double ended queue which stores the x and y cords and the number of steps
+    q = deque([(start_x, start_y, 0)])
+    # A set of all the visited paths
+    visited = set([(start_x, start_y)])
+
+    # While q is not empty meaning there are more path for the rabbit to go through
+    while q:
+        # Gets the x and y cords and the number of steps already taken by the rabbit
+        x, y, steps = q.popleft()
+
+        # If the carrot has been reached
+        if (x, y) == (target_x, target_y):
+            return steps
+
+        for move_x, move_y in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+            # new_x and new_y are the x and y cords where the rabbit will go to
+            new_x, new_y = x + move_x, y + move_y
+            # Calls the vaild function checking if the move is vaild
+            if is_valid(grid, new_x, new_y, grid_size):
+                # If the cords are not visited
+                if (new_x, new_y) not in visited:
+                    # Since it is a possible move it is add to q and is also added to visited as it will be visited
+                    q.append((new_x, new_y, steps + 1))
+                    visited.add((new_x, new_y))
+
+            # Since the move of new_x and new_y is not valid meaning that there might be a hole there, I check if the next one is free
+            elif is_valid_j(grid, new_x + move_x, new_y + move_y, grid_size):
+                # If the cords are not visited
+                if (new_x + move_x, new_y + move_y) not in visited:
+                    # Since it is a possible move it is add to q and is also added to visited as it will be visited
+                    q.append((new_x + move_x, new_y + move_y, steps + 1))
+                    visited.add((new_x + move_x, new_y + move_y))
+
+    return float("inf")  # If no path found
 
 
-grid_size = int(input("Enter grid size: "))  # The length and width of the grid
-n_c = int(input("Enter number of carrots: "))  # Number of carrots
-n_h = int(input("Enter number of holes: "))  # Number of holes
-grid, x_r, y_r, x_h, y_h, x_c, y_c = grid_generator(
-    grid_size, n_c, n_h
-)  # Calls the grid_generator function and gets all the required values
+# The function which calls the bfs and has all the carrots data
+def find_carrots(grid, x_r, y_r, carrot_positions, grid_size):
+    # I have made a list of dictionaries which conation the x and y cords of the carrot and the number of steps it takes to reach them
+    carrot_data = []
+
+    # Goes through all the carrots and finds the least number of steps it takes to reach them
+    for x, y in carrot_positions:
+        steps = bfs(grid, x_r, y_r, x, y, grid_size)
+        carrot_data.append({"position": (x, y), "steps": steps})
+
+    return carrot_data
+
+
+# Takes the grid size, the number of carrots and the number of holes
+grid_size = int(input("Enter grid size: "))
+n_c = int(input("Enter number of carrots: "))
+n_h = int(input("Enter number of holes: "))
+
+# Generate the grid and prints it
+grid, x_r, y_r, carrot_positions = generate_grid(grid_size, n_c, n_h)
 print_grid(grid)
-found_c = bfs(grid, n_c, x_r, y_r, "r", "c", grid_size)
 
-print(found_c)
+# Find all the carrots and the number of steps it takes to reach it
+carrot_data = find_carrots(grid, x_r, y_r, carrot_positions, grid_size)
+print("\nCarrots:")
+# Goes through all the carrots and prints the position and the number of steps to reach it
+for i, carrot in enumerate(carrot_data):
+    print(f"Carrot {i+1}: Position: {carrot['position']}, Steps: {carrot['steps']}")
