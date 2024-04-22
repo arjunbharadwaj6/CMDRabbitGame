@@ -117,6 +117,13 @@ grid_size = int(input("Enter grid size: "))
 n_c = int(input("Enter number of carrots: "))
 n_h = int(input("Enter number of holes: "))
 
+# Makes sure that the input is matches the criteria
+while grid_size < 10 or n_c < 2 or n_h < 2:
+    print("Minimum of 10 for grid size, 2 for carrots and 2 for holes")
+    grid_size = int(input("Enter grid size: "))
+    n_c = int(input("Enter number of carrots: "))
+    n_h = int(input("Enter number of holes: "))
+
 # Generate the grid and prints it
 grid, x_r, y_r, carrot_positions = generate_grid(grid_size, n_c, n_h)
 print_grid(grid)
