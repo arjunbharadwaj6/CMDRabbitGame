@@ -1,6 +1,7 @@
-import os
-import random
-import time
+# Imports
+import os  # To clear the screen
+import random  # Generating random positions
+import time  # Stops the code for the user
 from collections import deque
 
 
@@ -92,20 +93,21 @@ def is_valid_j(grid, x, y, old_x, old_y, grid_size):
 
 # The code for the sorting algorithm bfs(breadth-first search)
 def bfs(grid, start_x, start_y, target_x, target_y, grid_size):
-    # A double ended queue which stores the x and y cords and the number of steps
+    # A double ended queue which stores the x and y cords, the number of steps and the path
     q = deque([(start_x, start_y, 0, [])])
     # A set of all the visited paths
     visited = set([(start_x, start_y)])
 
-    # While q is not empty meaning there are more path for the rabbit to go through
+    # While q is not empty meaning there are more paths for the rabbit to go through
     while q:
-        # Gets the x and y cords and the number of steps already taken by the rabbit
+        # Gets the x and y cords, the number of steps and the path that the rabbit has gone through
         x, y, steps, path = q.popleft()
 
         # If the carrot has been reached
         if (x, y) == (target_x, target_y):
             return steps, path
 
+        # Movement of the rabbit up, down, left, right
         for move_x, move_y in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
             # new_x and new_y are the x and y cords where the rabbit will go to
             new_x, new_y = x + move_x, y + move_y
@@ -113,17 +115,17 @@ def bfs(grid, start_x, start_y, target_x, target_y, grid_size):
             if is_valid(grid, new_x, new_y, grid_size, target_x, target_y):
                 # If the cords are not visited
                 if (new_x, new_y) not in visited:
-                    # Since it is a possible move it is add to q and is also added to visited as it will be visited
+                    # Since it is a possible move it is add to q and is also added to visited as it can be visited afterwards
                     q.append((new_x, new_y, steps + 1, path + [[new_x, new_y]]))
                     visited.add((new_x, new_y))
 
-            # Since the move of new_x and new_y is not valid meaning that there might be a hole there, I check if the next one is free
+            # Since the move of new_x and new_y is not valid meaning that there might be a hole there, I check if there is a hole and that the next one is free
             elif is_valid_j(
                 grid, new_x + move_x, new_y + move_y, new_x, new_y, grid_size
             ):
                 # If the cords are not visited
                 if (new_x + move_x, new_y + move_y) not in visited:
-                    # Since it is a possible move it is add to q and is also added to visited as it will be visited
+                    # Since it is a possible move it is add to q and is also added to visited as it can be visited afterwards
                     q.append(
                         (
                             new_x + move_x,
@@ -151,16 +153,17 @@ def find_carrots(grid, x_r, y_r, carrot_positions, hole_positions, grid_size):
             steps_h, path_h = bfs(grid, c_x, c_y, h_x, h_y, grid_size)
             hole_steps.append(steps_h)
             hole_paths.append(path_h)
-        # Number of steps from the rabbit to the carrot
+        # Number of steps from the rabbit to the carrot and the paths
         steps, path = bfs(grid, x_r, y_r, c_x, c_y, grid_size)
         # The number of steps to finish the game if the carrot was chosen is being added to carrot_steps
         carrot_steps.append(steps + min(hole_steps))
-        # The path used by the carrot is being added to carrot_path
+        # The quickest path if the carrot was chosen is being add to carrot_paths
         carrot_paths.append(path + hole_paths[hole_steps.index(min(hole_steps))])
 
     return carrot_steps, carrot_paths
 
 
+# Moves the rabbit through the quickest path
 def movement_of_rabbit(grid, cords, x_r, y_r, path):
     # CLears the screen and prints the path and the grid and waits for 2 seconds so that the user can look at the board
     clear_screen()
@@ -183,9 +186,10 @@ def movement_of_rabbit(grid, cords, x_r, y_r, path):
             grid[y_r][x_r] = "r"  # New position of the rabbit
         clear_screen()  # Clears the screen
         print_grid(grid, cords)  # Prints the new grid
+        # Prints the path that the rabbit will follow
         print(
             f"The path that the rabbit need to take to finish the game in least number of steps\n{path}"
-        )  # Prints the path that the rabbit will follow
+        )
         time.sleep(2)  # Waits for 2 seconds
 
 
