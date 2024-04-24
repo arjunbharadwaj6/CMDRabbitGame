@@ -9,13 +9,13 @@ from collections import deque
 def print_grid(grid, cords):
     # I am printing the cords so that it will be easier while testing
     print(" " * len(cords[1]), end="")  # Indentation
-    print(*cords, sep="    ")  # Prints the cords
+    print(*cords, sep="   ")  # Prints the cords
     for i in range(len(grid)):
         print()  # Spacing
 
         # Two values for spacing
         x = len(cords[1])
-        y = "   " + (" " * x)
+        y = "  " + (" " * x)
         print(cords[i + 1], *grid[i], sep=y)
     print()
 
@@ -165,13 +165,14 @@ def find_carrots(grid, x_r, y_r, carrot_positions, hole_positions, grid_size):
 
 # Moves the rabbit through the quickest path
 def movement_of_rabbit(grid, cords, x_r, y_r, path):
-    # CLears the screen and prints the path and the grid and waits for 2 seconds so that the user can look at the board
+    # CLears the screen and prints the path and the grid and waits for 4 seconds so that the user can look at the board
     clear_screen()
     print_grid(grid, cords)
     print(
-        f"The path that the rabbit need to take to finish the game in least number of steps\n{path}"
+        f"The path that the rabbit need to take to finish the game in least number of steps"
     )
-    time.sleep(2)
+    print(*path)
+    time.sleep(4)
     picked = False  # If the carrot has been picked
     for i in range(len(path)):
         # Sets the previous position of the rabbit to a pathway stone
@@ -188,9 +189,10 @@ def movement_of_rabbit(grid, cords, x_r, y_r, path):
         print_grid(grid, cords)  # Prints the new grid
         # Prints the path that the rabbit will follow
         print(
-            f"The path that the rabbit need to take to finish the game in least number of steps\n{path}"
+            f"The path that the rabbit need to take to finish the game in least number of steps"
         )
-        time.sleep(2)  # Waits for 2 seconds
+        print(*path)
+        time.sleep(1.5)  # Waits for 1.5 seconds
 
 
 # Takes the grid size, the number of carrots and the number of holes
