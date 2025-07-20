@@ -1,8 +1,9 @@
+# Program needs to be run as root if using linux
 # Imports
 import os
 import random
 
-# Need to be installed it is used to capture the users input like arrow keys
+# Need to be installed, it is used to capture the user's input, like the arrow keys
 # It can be installed using pip install keyboard
 import keyboard
 
